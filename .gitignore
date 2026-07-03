@@ -1,0 +1,10 @@
+.dotnet/
+.dotnet-install.ps1
+.nuget/
+.appdata/
+**/bin/
+**/obj/
+artifacts/
+src/MovieTimestampNotes.App/models/
+*.user
+*.suo

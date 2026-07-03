@@ -1,0 +1,9 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/MovieTimestampNotes.App/MovieTimestampNotes.App.csproj" />
+    <Project Path="src/MovieTimestampNotes.Core/MovieTimestampNotes.Core.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/MovieTimestampNotes.Tests/MovieTimestampNotes.Tests.csproj" />
+  </Folder>
+</Solution>

@@ -1,0 +1,15 @@
+电影时间戳文本框 - 第三方软件声明
+====================================
+
+Vosk API / vosk-model-small-cn-0.22
+Copyright Alpha Cephei Inc. and contributors
+Licensed under the Apache License, Version 2.0.
+https://github.com/alphacep/vosk-api
+https://alphacephei.com/vosk/models
+
+NAudio
+Copyright Mark Heath and contributors
+Licensed under the MIT License.
+https://github.com/naudio/NAudio
+
+完整许可文本随对应 NuGet 包及语音模型分发；源代码仓库中的包锁定信息可用于确认版本。
