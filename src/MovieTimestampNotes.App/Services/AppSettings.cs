@@ -7,6 +7,8 @@ public sealed class AppSettings
 {
     public double? WindowLeft { get; set; }
     public double? WindowTop { get; set; }
+    public double CompactWidth { get; set; } = 500;
+    public double CompactHeight { get; set; } = 110;
     public bool IsExpanded { get; set; } = true;
     public string? MicrophoneName { get; set; }
     public string TimelineHotkey { get; set; } = "Ctrl+Alt+Space";

@@ -28,6 +28,10 @@ public partial class MainWindow : Window
     private bool _isRecording;
     private bool _toggleRecording;
     private bool _suppressInputChange;
+    private bool _changingLayout;
+    private bool _layoutInitialized;
+    private double _compactWidth = 500;
+    private double _compactHeight = 110;
     private string _voicePrefix = string.Empty;
 
     public MainWindow()
@@ -41,6 +45,7 @@ public partial class MainWindow : Window
         NotesDataGrid.ItemsSource = _noteRows;
         Loaded += MainWindow_Loaded;
         Closing += MainWindow_Closing;
+        SizeChanged += MainWindow_SizeChanged;
         _uiTimer.Tick += UiTimer_Tick;
     }
 
@@ -52,6 +57,7 @@ public partial class MainWindow : Window
         _hotkeys.Released += Hotkeys_Released;
         ApplyHotkeys(showSuccess: false);
         SetExpanded(_settings.IsExpanded);
+        _layoutInitialized = true;
         LoadMicrophones();
         _uiTimer.Start();
 
@@ -75,6 +81,8 @@ public partial class MainWindow : Window
         PushToTalkHotkeyTextBox.Text = _settings.PushToTalkHotkey;
         ToggleVoiceHotkeyTextBox.Text = _settings.ToggleVoiceHotkey;
         FocusInputHotkeyTextBox.Text = _settings.FocusInputHotkey;
+        _compactWidth = Math.Clamp(_settings.CompactWidth, 380, 1000);
+        _compactHeight = Math.Clamp(_settings.CompactHeight, 100, 320);
 
         if (_settings.WindowLeft.HasValue && _settings.WindowTop.HasValue &&
             _settings.WindowLeft >= SystemParameters.VirtualScreenLeft - Width + 80 &&
@@ -466,11 +474,61 @@ public partial class MainWindow : Window
 
     private void SetExpanded(bool expanded)
     {
+        if (_layoutInitialized && !_isExpanded && expanded && !_changingLayout)
+        {
+            CaptureCompactSize();
+        }
+
+        _changingLayout = true;
         _isExpanded = expanded;
         ExpandedPanel.Visibility = expanded ? Visibility.Visible : Visibility.Collapsed;
-        Height = expanded ? 690 : 112;
+        MinWidth = 0;
+        MinHeight = 0;
+        MaxWidth = double.PositiveInfinity;
+        MaxHeight = double.PositiveInfinity;
+
+        if (expanded)
+        {
+            ResizeMode = ResizeMode.NoResize;
+            CompactRow.Height = new GridLength(80);
+            DetailRow.Height = new GridLength(1, GridUnitType.Star);
+            Width = 680;
+            Height = 738;
+            MinWidth = MaxWidth = 680;
+            MinHeight = MaxHeight = 738;
+        }
+        else
+        {
+            ResizeMode = ResizeMode.CanResize;
+            CompactRow.Height = new GridLength(1, GridUnitType.Star);
+            DetailRow.Height = new GridLength(0);
+            MinWidth = 380;
+            MinHeight = 100;
+            MaxWidth = 1000;
+            MaxHeight = 320;
+            Width = _compactWidth;
+            Height = _compactHeight;
+        }
+
         ExpandButton.Content = expanded ? "⌃" : "⌄";
         _settings.IsExpanded = expanded;
+        _changingLayout = false;
+    }
+
+    private void MainWindow_SizeChanged(object sender, SizeChangedEventArgs e)
+    {
+        if (_layoutInitialized && !_isExpanded && !_changingLayout && WindowState == WindowState.Normal)
+        {
+            CaptureCompactSize();
+        }
+    }
+
+    private void CaptureCompactSize()
+    {
+        _compactWidth = Math.Clamp(ActualWidth, 380, 1000);
+        _compactHeight = Math.Clamp(ActualHeight, 100, 320);
+        _settings.CompactWidth = _compactWidth;
+        _settings.CompactHeight = _compactHeight;
     }
 
     private void SetStatus(string message, bool error = false)
@@ -499,6 +557,7 @@ public partial class MainWindow : Window
         _settings.WindowLeft = Left;
         _settings.WindowTop = Top;
         _settings.IsExpanded = _isExpanded;
+        if (!_isExpanded) CaptureCompactSize();
         SaveSettings();
         _uiTimer.Stop();
         _hotkeys?.Dispose();
